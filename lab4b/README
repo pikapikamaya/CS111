@@ -1,0 +1,25 @@
+NAME: Yanyin Liu
+EMAIL: yanyinliu8@gmail.com
+ID: 604952257
+
+Included files:
+1. lab4b.c - C source files for an embedded application that builds and runs on an embedded system
+2. Makefile - A file to build and test your application. The higher level targets should include: default, check, clean, disk
+3. README
+
+Resources:
+1. mraa example codes:
+https://iotdk.intel.com/docs/master/mraa/gpio_8h.html#a61e3a45eb7daad362af4a116d01111fa
+
+2. Grove - Temperature Sensor V1.2
+http://wiki.seeedstudio.com/Grove-Temperature_Sensor_V1.2/
+
+3. BeagleBone Tutorial - GPIO, Interrupts, Analog and PWM (provided in spec)
+
+4. fflush() function:
+https://www.tutorialspoint.com/c_standard_library/c_function_fflush.htm
+
+5. strncmp() function:
+https://www.tutorialspoint.com/c_standard_library/c_function_strncmp.htm
+
+
