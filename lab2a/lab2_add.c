@@ -15,12 +15,6 @@
 
 #define BILLION  1000000000L
 
-// void add(long long *pointer, long long value) {
-//     long long sum = *pointer + value;
-//     *pointer = sum;
-// }
-
-//  initialize a mutex variable:
 pthread_mutex_t mymutex = PTHREAD_MUTEX_INITIALIZER;
 int lock = 0;
 int nthread = 1, niterate = 1;
@@ -120,21 +114,16 @@ void* my_add(void *th_args)
 			add(counter, -1);
 		}
 	}
-	// exits to re-join the parent thread
 	pthread_exit(0);
 }
 
 
 int main(int argc, char **argv)
 {	
-	// int nthread = 1, niterate = 1;
-	// struct timespec start, stop;
-	//int opt; // use to get the option characters
-	// int yieldflag = 0;
 	long long counter = 0;
 	char sync_option = ' ';
 	int c,i;
-	//char *name = (char*) malloc(32*sizeof(char));
+	
 	static struct option long_options[]=
 	{
 		{"threads", 1, NULL, THREADS},
@@ -150,7 +139,7 @@ int main(int argc, char **argv)
 		{
 			break;
 		}
-		//fprintf(stderr, "c: %c, optind: %d, optarg: %s\n", c, optind, optarg);
+		
 		switch(c)
 		{
 			case THREADS:
@@ -224,8 +213,6 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	//prints to stdout a comma-separated-value (CSV)
-	// name = "add-none";
 	switch(sync_option)
 	{
 		case 'm': 
@@ -258,16 +245,7 @@ int main(int argc, char **argv)
 				fprintf(stdout, "add-c,");
 			}
 			break;
-		// case ' ':
-		// 	if(opt_yield)
-		// 	{
-		// 		name = "add-yield-none";
-		// 	}
-		// 	else
-		// 	{
-		// 		name = "add-none";
-		// 	}
-		// 	break;
+		
 		default: 
 			if(opt_yield)
 			{
