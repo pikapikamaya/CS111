@@ -1,16 +1,14 @@
 // NAME: Yanyin Liu
-// EMAIL: yanyinliu8@gmail.com
-// ID: 604952257
 
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <termios.h> // for termios functions
+#include <termios.h> 
 #include <unistd.h> 
 #include <errno.h>
 #include <string.h>
-#include <getopt.h> // header file for getopt_long()
-#include <signal.h> // header file for signal()
+#include <getopt.h> 
+#include <signal.h> 
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <poll.h>
@@ -65,15 +63,11 @@ int main(int argc, char **argv)
 
 
 
-
-	//  gets the parameters associated with the object referred by 
-	//  fd and stores them in the termios structure referenced by termios_p. 
 	tcgetattr(0, &initial);
-	termode.c_iflag = ISTRIP; /* only lower 7 bits	*/
-	termode.c_oflag = 0; /* no processing	*/
-	termode.c_lflag = 0; /* no processing	*/
+	termode.c_iflag = ISTRIP; 
+	termode.c_oflag = 0;
+	termode.c_lflag = 0; 
 
-	/* sets the parameters associated with the terminal */
 	tcsetattr(0, TCSANOW, &termode);
 
 	if(isShell == 1)
@@ -81,9 +75,7 @@ int main(int argc, char **argv)
 		signal(SIGPIPE, handler);
 		int to_child_pipe[2];
 		int to_parent_pipe[2];
-		// pid_t child_pid = -1;
-
-		// pipe before fork()
+		
 		if(pipe(to_child_pipe) == -1)
 		{
 			fprintf(stderr, "Ooh..pipe() failed: %s\n", strerror(errno));
@@ -98,7 +90,7 @@ int main(int argc, char **argv)
 
 		child_pid = fork();
 
-		if(child_pid > 0) // parent process
+		if(child_pid > 0) 
 		{
 			close(to_parent_pipe[1]);
 			close(to_child_pipe[0]);
@@ -111,26 +103,26 @@ int main(int argc, char **argv)
 			char buffer[BUFFER_SIZE];
 			for(;;)
 			{
-				fds[0].fd = 0; // describing the keyboard (stdin)
-				fds[1].fd = to_parent_pipe[0]; // describing the pipe that returns output from the shell (read)
+				fds[0].fd = 0; 
+				fds[1].fd = to_parent_pipe[0]; 
 				fds[0].events = POLLIN | POLLHUP | POLLERR;
 				fds[1].events = POLLIN | POLLHUP | POLLERR;
 				fds[0].revents = 0;
 				fds[1].revents = 0;
 
 				c = poll(fds, 2, 0);
-				if (c==0) // timeout
+				if (c==0) 
 				{
 					continue;
 				}
 				if(c < 0)
 				{
 					fprintf(stderr, "Ooh.. poll() failed: %s\n", strerror(errno));
-					// tcsetattr(0, TCSANOW, &initial);
+					
 					exit(1);
 				}
 				
-				// read input from the keyboard, echo it to stdout, and forward it to the shell
+				
 				if(fds[0].revents & POLLIN)
 				{
 					check3 = read(0, buffer, BUFFER_SIZE);
@@ -142,27 +134,21 @@ int main(int argc, char **argv)
 					}
 					for(int i=0; i<check3; i++)
 					{
-						// if(check3 == 0)
-						// {
-						// 	continue; //EOF
-						// }
-						if(buffer[i] == '\r' || buffer[i] == '\n') // map received <cr> or <lf> into <cr><lf> 
+						
+						if(buffer[i] == '\r' || buffer[i] == '\n')  
 						{
 							write(1, "\r\n", 2);
-							// write(to_child_pipe[1], '\n', 1);
+							
 							char temp = '\n';
 							write(to_child_pipe[1], &temp, 1);
 						}
-						else if(buffer[i] == 0x03) // CTRLC
+						else if(buffer[i] == 0x03)
 						{
 							kill(child_pid, SIGINT);
 						}
-						else if(buffer[i] == 0x04) // CTRLD
+						else if(buffer[i] == 0x04) 
 						{
-							//Upon receiving an EOF (^D, or 0x04) from the terminal, close the pipe to the shell
-							//but continue processing input from the shell
-
-							// close pipe fd, after process is through writing to it (e.g., because you received an ^D)
+							
 							close(to_child_pipe[1]);
 							
 						}
@@ -174,8 +160,6 @@ int main(int argc, char **argv)
 					}
 				}
 
-				/*The field revents is an output parameter, filled by the kernel with
-				the events that actually occurred.  */
 				if(fds[0].revents & (POLLHUP | POLLERR))
 				{
 					fprintf(stderr, "Error on keyboard: %s\n", strerror(errno));
@@ -184,7 +168,6 @@ int main(int argc, char **argv)
 				}
 
 
-				// read input from the shell pipe and write it to stdout. 
 				if(fds[1].revents & POLLIN)
 				{
 					check3 = read(to_parent_pipe[0], buffer, BUFFER_SIZE);
@@ -196,7 +179,7 @@ int main(int argc, char **argv)
 					}
 					for(int i=0; i<check3; i++)
 					{
-						if(buffer[i] == '\n' || buffer[i] == '\r') // received an <lf> from shell, print it to the screen as <cr><lf>
+						if(buffer[i] == '\n' || buffer[i] == '\r') 
 						{
 							write(1, "\r\n", 2);
 						}
@@ -210,11 +193,10 @@ int main(int argc, char **argv)
 				if(fds[1].revents & (POLLHUP | POLLERR))
 				{
 					close(to_child_pipe[1]);
-					//collect the shell's exit status 
+					
 					int child_status;
 					int end_ID;
-					// end_ID = wait(child_pid, &child_status, WNOHANG | WUNTRACED | WCONTINUED);
-
+					
 					end_ID = waitpid(child_pid, &child_status, 0);
 					if(end_ID == -1)
 					{
@@ -222,7 +204,7 @@ int main(int argc, char **argv)
 						tcsetattr(0, TCSANOW, &initial);
 						exit(1);
 					}
-					// SHELL EXIT SIGNAL=# STATUS=#
+					
 					if(end_ID == child_pid)
 					{	
 						close(to_parent_pipe[0]);
@@ -235,13 +217,13 @@ int main(int argc, char **argv)
 			}
 
 		}
-		else if(child_pid == 0) // child process
+		else if(child_pid == 0) 
 		{
 			close(to_child_pipe[1]);
-			close(to_parent_pipe[0]); // we read from the terminal, this end is not needed
-			dup2(to_child_pipe[0], 0); //standard input is a pipe from the terminal process,
-			dup2(to_parent_pipe[1], 1); // standard output is a pipe to the terminal process
-			dup2(to_parent_pipe[1], 2); //standard error is a pipe to the terminal process
+			close(to_parent_pipe[0]); 
+			dup2(to_child_pipe[0], 0); 
+			dup2(to_parent_pipe[1], 1); 
+			dup2(to_parent_pipe[1], 2);
 			close(to_child_pipe[0]);
 			close(to_parent_pipe[1]);
 
@@ -267,7 +249,6 @@ int main(int argc, char **argv)
 	}
 	else
 	{
-		// read input from the keyboard into a buffer
 		ssize_t check1, check2;
 		char buffer[BUFFER_SIZE];
 		while(1)
@@ -282,15 +263,15 @@ int main(int argc, char **argv)
 			{
 				if(check1 == 0)
 				{
-					continue; //EOF
+					continue; 
 				}
-				if(buffer[i] == '\r' || buffer[i] == '\n') // map received <cr> or <lf> into <cr><lf> 
+				if(buffer[i] == '\r' || buffer[i] == '\n') 
 				{
 					check2 = write(1, "\r\n", 2);
 				}
-				else if(buffer[i] == 0x04) // CTRLD
+				else if(buffer[i] == 0x04)
 				{
-					// restore (reset) normal terminal modes and exit
+					
 					tcsetattr(0, TCSANOW, &initial);
 					exit(0);
 					
@@ -310,7 +291,6 @@ int main(int argc, char **argv)
 	}
 
 
-	// restore (reset) normal terminal modes and exit
 	tcsetattr(0, TCSANOW, &initial);
 	exit(0);
 }
