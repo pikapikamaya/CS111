@@ -21,11 +21,10 @@
 static int key_len =10;
 char * keyset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 long long lock_num = 1;
-// int nlist = 1;
+
 long long elapsed_time=0;
 struct sublists_t{
-	SortedList_t *lists; // pointer to a SortedListed_t element
-	//  initialize a mutex variable:
+	SortedList_t *lists;
 	pthread_mutex_t mymutex;
 	volatile int spin_lock;
 };
@@ -50,15 +49,6 @@ void handler(int signo)
 
 char* get_random()
 {
-	// for generating random keys
-	// srand((unsigned int) time (NULL));
-	// char *k = (char*)malloc(key_len *sizeof(char));
-	// for(int i=0; i<key_len; i++)
-	// {
-	// 	k[i] = keyset[rand()%61];
-	// }
-	// k[key_len] = '\0'; // NULL in the end
-	// return k;
 	char *k = (char*)malloc((key_len+1) * sizeof(char));
     for(int i = 0; i < key_len; i++) {
         k[i] = (char)(rand() % 255 + 1);
@@ -66,8 +56,6 @@ char* get_random()
     k[key_len] = '\0';
     return k;
 }
-
-// Open source: http://www.cse.yorku.ca/~oz/hash.html
 long hash(const char *key)
 {
 	long n = 5381;
@@ -78,9 +66,6 @@ long hash(const char *key)
 	return n;
 }
 
-// helper function to implement mutex and spin lock
-// For part B: Note the high-resolution time before and after getting the lock, 
-// compute the elapsed difference, and add that to a (per-thread) total.
 void operation(char op, int lockflag, struct sublists_t* sublist)
 {
 	struct timespec lock_start, lock_stop;
@@ -107,8 +92,6 @@ void operation(char op, int lockflag, struct sublists_t* sublist)
 		{
 			pthread_mutex_unlock(&sublist->mymutex);
 		}
-		// lock_num++;
-		// elapsed_time = BILLION * (stop.tv_sec - start.tv_sec) + (stop.tv_nsec - start.tv_nsec);
 	}
 	else if(op == 's')
 	{
@@ -145,7 +128,6 @@ void* func(void *th_arg)
 	long sublist_num;
 	for(int i=0; i<data->niterate; i++)
 	{
-		//  select which sub-list a particular key should be in based on a simple hash of the key, modulo the number of lists.
 		const char *key = data->elements[i]->key;
 		sublist_num = ((int)hash(key)) % data->nlist;
 		// in case there the sublist_num for some reasons is negative
@@ -154,12 +136,10 @@ void* func(void *th_arg)
 			sublist_num = sublist_num * (-1);
 		}
 
-		operation(op, 1, data->sub_list[sublist_num]); // lock
-		// critical section
+		operation(op, 1, data->sub_list[sublist_num]); 
 		SortedListElement_t *elements = data->elements[i];
-		//inserts them all into a (single shared-by-all-threads) list
 		SortedList_insert(data->sub_list[sublist_num]->lists, elements);
-		operation(op, 0, data->sub_list[sublist_num]); // release the lock
+		operation(op, 0, data->sub_list[sublist_num]); 
 	}
 
 	for(int i=0; i<data->nlist; i++)
@@ -176,7 +156,6 @@ void* func(void *th_arg)
 	}
 	
 
-	// looks up and deletes each of the keys it had previously inserted
 	for(int i=0; i<data->niterate; i++)
 	{
 		const char *key = data->elements[i]->key;
@@ -234,7 +213,7 @@ int main(int argc, char **argv)
 		{
 			break;
 		}
-		//fprintf(stderr, "c: %c, optind: %d, optarg: %s\n", c, optind, optarg);
+		
 		switch(c)
 		{
 			case THREADS:
