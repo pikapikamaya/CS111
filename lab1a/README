@@ -1,6 +1,5 @@
 NAME: Yanyin Liu
-EMAIL: yanyinliu8@gmail.com
-ID: 604952257
+
 
 Included files: 
 1. lab1a.c: Set the the keyboard to non-canonical input mode, and allow to read input from keyboard to a buffer,
