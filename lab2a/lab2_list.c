@@ -1,6 +1,4 @@
 // NAME: Yanyin Liu
-// EMAIL: yanyinliu8@gmail.com
-// ID: 604952257
 
 #include <stdlib.h>
 #include <stdio.h>
