@@ -1,8 +1,4 @@
 # NAME: Yanyin Liu
-# EMAIL: yanyinliu8@gmail.com
-# ID: 604952257
-
-.SILENT:
 
 default:
 	gcc -Wall -Wextra -g -lmraa -lm -o lab4b lab4b.c
