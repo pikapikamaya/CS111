@@ -1,8 +1,4 @@
 // NAME: Yanyin Liu
-// EMAIL: yanyinliu8@gmail.com
-// ID: 604952257
-
-// remember to remove print to stdout before submit
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -47,7 +43,6 @@ int hostflag=0;
 char *id;
 char host[256];
 int port = 0;
-//static char id_string[13] = "ID=";
 
 int socketfd;
 struct hostent* server;
@@ -155,7 +150,7 @@ void command_exe(const char* commands){
 	{
 		int i = 0;
 		char *checkstr = "PERIOD=";
-		// check if it mactches the required string
+		
 		while (commands[i] != '\0' && checkstr[i] != '\0')
 		{
 			if (commands[i] != checkstr[i]) // wrong argutment
@@ -165,7 +160,7 @@ void command_exe(const char* commands){
 			}
 			i++;
 		}
-		if (i != 7) // up to this point, should match the string
+		if (i != 7) 
 		{
 			fprintf(stderr, "Invalid period command / argument received!\n");
 			exit(1);
@@ -196,8 +191,7 @@ void command_exe(const char* commands){
 
 int main(int argc, char **argv)
 {
-	// char commands[1024];
-	// memset(commands, 0, 1024);
+	
 	char inputs[1024];
 	memset(inputs, 0, 1024);
 	static struct option long_options[]=
@@ -210,7 +204,6 @@ int main(int argc, char **argv)
 		{0,0,0,0}
 	};
 	int c;
-	//int opt; // use to get the option characters
 	while(1)
 	{
 		c = getopt_long(argc, argv, "", long_options, NULL);
@@ -245,7 +238,7 @@ int main(int argc, char **argv)
 				logflag = 1;
 				strcpy(filename, optarg);
 				filefd = fopen(filename, "a+");
-				// fail ==>NULL is returned and the global variable errno is set to indicate the error.
+				
 				if(filefd==NULL)
 				{
 					fprintf(stderr, "Error on opening the file!\n");
@@ -260,11 +253,7 @@ int main(int argc, char **argv)
 					exit(1);
 				}
 				idflag = 1;
-				// strcpy(id, optarg);
-				// strcat(id_string, optarg);
-				// strcat(id_string, "\n");
-				// sprintf(id, "ID=%s\n", optarg);
-				// write_to_log(id);
+				
 				id = optarg;
 				break;
 			case HOST:
@@ -277,10 +266,7 @@ int main(int argc, char **argv)
 				exit(1);
 		}
 	}
-	// if(logflag == 1)
-	// {
-	// 	fputs(id_string,filefd); //immediately send (and log) an ID terminated with a newline
-	// }
+	
 
 	if((optind == argc) || (hostflag == 0) || (idflag == 0))
 	{
@@ -308,7 +294,7 @@ int main(int argc, char **argv)
 	{
 		fputs(tempbuf, filefd);
 	}
-	// setup socket
+	
 	socketfd = socket(AF_INET, SOCK_STREAM, 0);
 	if(socketfd < 0)
 	{
@@ -323,11 +309,10 @@ int main(int argc, char **argv)
 	}
 	memset((char*) &server_addr, 0, sizeof(server_addr)); 
 	server_addr.sin_family = AF_INET;
-	// void *memmove(void *dest, const void *src, size_t n);
-	// memmove(&server_addr.sin_addr.s_addr, server->h_addr, server->h_length);
+	
 	bcopy((char *)server->h_addr, (char *) &server_addr.sin_addr.s_addr, server->h_length);
 	server_addr.sin_port = htons(port);
-	// establishs a connection to the server
+	
 	if(connect(socketfd, (struct sockaddr *)&server_addr, sizeof(server_addr)) < 0)
 	{
 		fprintf(stderr, "Error! Fail on binding!\n");
@@ -335,15 +320,14 @@ int main(int argc, char **argv)
 	}
 	dprintf(socketfd, "ID=%s\n", id);
 
-	// write_to_server(id);
-	//Initialize GPIO / AIO
+	
 	temp_sensor = mraa_aio_init(1);
 
 	struct timeval clk;
 	time_t next_sample=0;
 	struct tm *time;
 
-	// sensor polling
+	
 	struct pollfd fds[1];
 	fds[0].fd = socketfd;
 	fds[0].events = POLLIN | POLLHUP | POLLERR;
@@ -363,15 +347,10 @@ int main(int argc, char **argv)
 		if(!stop && (clk.tv_sec >= next_sample))
 		{
 			time = localtime(&(clk.tv_sec));
-			// int dec_temp = temperature * 10; 
-			// print out the sample report
-			// for temperature: a decimal temperature in degrees and tenths (e.g. 98.6)
-			// %02d: "format the integer with 2 digits, left padding it with zeroes
+			
 			sprintf(buffer, "%02d:%02d:%02d %.1f\n", time->tm_hour, time->tm_min, time->tm_sec, temperature);
 			dprintf(socketfd, "%02d:%02d:%02d %.1f\n", time->tm_hour, time->tm_min, time->tm_sec, temperature);
-			// fprintf(stdout, "%02d:%02d:%02d %d.%1d\n", time->tm_hour, time->tm_min, time->tm_sec, dec_temp/10, dec_temp%10);
-			// fputs(buffer, stdout);
-			//fprintf(stdout, "logflag is: %d", logflag);
+			
 			if(logflag == 1)
 			{
 				// fprintf(filefd, "%02d:%02d:%02d %d.%1d\n", time->tm_hour, time->tm_min, time->tm_sec, dec_temp/10, dec_temp%10);
@@ -389,13 +368,9 @@ int main(int argc, char **argv)
 		
 		if(fds[0].revents & POLLIN)
 		{
-			// fgets() reads a line from the specified stream and stores it into the string pointed to by str. 
-			// fgets(commands, 256, stdin);
-			// read from socket
-			// FILE *fdopen(int fd, const char *mode); ==> mode="r" means Open text file for reading
 			char commands[100];
 			memset(commands, 0, 100);
-			// fdopen mode: r ==> Open text file for reading. The stream is positioned at the beginning of the file.
+			
 			FILE *r = fdopen(socketfd, "r");
 			fgets(commands, 100, r);
 			command_exe(commands);
@@ -405,20 +380,17 @@ int main(int argc, char **argv)
 	}
 	gettimeofday(&clk, 0);
 	time = localtime(&clk.tv_sec);
-	// print out the sample report
-	// output (and log) a time-stamped SHUTDOWN message and exit.
-	//fprintf(stdout, "%02d:%02d:%02d SHUTDOWN\n", time->tm_hour, time->tm_min, time->tm_sec);
 
 	sprintf(buffer,"%02d:%02d:%02d SHUTDOWN\n", time->tm_hour, time->tm_min, time->tm_sec);
 	dprintf(socketfd,"%02d:%02d:%02d SHUTDOWN\n", time->tm_hour, time->tm_min, time->tm_sec);
 	// fputs(buffer, stdout);
 	if(logflag == 1)
 	{
-	// 	fprintf(filefd, "%02d:%02d:%02d SHUTDOWN\n", time->tm_hour, time->tm_min, time->tm_sec);
+	
 		fputs(buffer, filefd);
 	}
 
 	mraa_aio_close(temp_sensor);
-	// mraa_gpio_close(button);
+
 	exit(0);
 }
