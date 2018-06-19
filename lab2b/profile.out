@@ -1,0 +1,163 @@
+Total: 1392 samples
+    1163  83.5%  83.5%     1164  83.6% operation
+     135   9.7%  93.2%      135   9.7% __strcmp_sse42
+      47   3.4%  96.6%      119   8.5% SortedList_insert
+      40   2.9%  99.5%      109   7.8% SortedList_lookup
+       6   0.4%  99.9%        6   0.4% _init
+       1   0.1% 100.0%        1   0.1% 0x00007fffdb7ec601
+       0   0.0% 100.0%        1   0.1% __GI___clock_gettime
+       0   0.0% 100.0%     1392 100.0% __clone
+       0   0.0% 100.0%     1392 100.0% func
+       0   0.0% 100.0%     1392 100.0% start_thread
+ROUTINE ====================== func in /u/cs/ugrad/yanyin/CS111/project2b/lab2_list.c
+     0   1392 Total samples (flat / cumulative)
+     .      .  138: 	}
+     .      .  139: }
+     .      .  140: 
+     .      .  141: 
+     .      .  142: void* func(void *th_arg)
+---
+     .      .  143: {
+     .      .  144: 	struct threadargs *data;
+     .      .  145: 	data = (struct threadargs*) th_arg;
+     .      .  146: 	char op = data->sync_option;
+     .      .  147: 	long sublist_num;
+     .      .  148: 	for(int i=0; i<data->niterate; i++)
+     .      .  149: 	{
+     .      .  150: 		//  select which sub-list a particular key should be in based on a simple hash of the key, modulo the number of lists.
+     .      .  151: 		const char *key = data->elements[i]->key;
+     .      .  152: 		sublist_num = ((int)hash(key)) % data->nlist;
+     .      .  153: 		// in case there the sublist_num for some reasons is negative
+     .      .  154: 		if(sublist_num < 0)
+     .      .  155: 		{
+     .      .  156: 			sublist_num = sublist_num * (-1);
+     .      .  157: 		}
+     .      .  158: 
+     .    568  159: 		operation(op, 1, data->sub_list[sublist_num]); // lock
+     .      .  160: 		// critical section
+     .      .  161: 		SortedListElement_t *elements = data->elements[i];
+     .      .  162: 		//inserts them all into a (single shared-by-all-threads) list
+     .    119  163: 		SortedList_insert(data->sub_list[sublist_num]->lists, elements);
+     .      .  164: 		operation(op, 0, data->sub_list[sublist_num]); // release the lock
+     .      .  165: 	}
+     .      .  166: 
+     .      .  167: 	for(int i=0; i<data->nlist; i++)
+     .      .  168: 	{
+     .      .  169: 		operation(op, 1, data->sub_list[i]); // lock
+     .      .  170: 		// critical section
+     .      .  171: 		// gets the list length
+     .      .  172: 		if(SortedList_length(data->sub_list[i]->lists)<0)
+     .      .  173: 		{
+     .      .  174: 			fprintf(stderr, "Error on getting the length of sublist!!\n");
+     .      .  175: 			exit(2);
+     .      .  176: 		}
+     .      .  177: 		operation(op, 0, data->sub_list[i]); // release the lock
+     .      .  178: 	}
+     .      .  179: 	
+     .      .  180: 
+     .      .  181: 	// looks up and deletes each of the keys it had previously inserted
+     .      .  182: 	for(int i=0; i<data->niterate; i++)
+     .      .  183: 	{
+     .      .  184: 		const char *key = data->elements[i]->key;
+     .      .  185: 		sublist_num = ((int)hash(key)) % data->nlist;
+     .      .  186: 		// in case there the sublist_num for some reasons is negative
+     .      .  187: 		if(sublist_num < 0)
+     .      .  188: 		{
+     .      .  189: 			sublist_num = sublist_num * (-1);
+     .      .  190: 		}
+     .      .  191: 
+     .    596  192: 		operation(op, 1, data->sub_list[sublist_num]); // lock
+     .      .  193: 		// critical section
+     .    109  194: 		SortedListElement_t * elements = SortedList_lookup(data->sub_list[sublist_num]->lists, data->elements[i]->key);
+     .      .  195: 		if(SortedList_delete(elements) == 1) // delete failed
+     .      .  196: 		{
+     .      .  197: 			fprintf(stderr, "Error! Fail to delete elements\n");
+     .      .  198: 			exit(2);
+     .      .  199: 		}
+     .      .  200: 		operation(op, 0, data->sub_list[sublist_num]); // release the lock
+     .      .  201: 	}
+     .      .  202: 	
+     .      .  203: 	// exits to re-join the parent thread
+     .      .  204: 	pthread_exit(0);
+---
+     .      .  205: }
+     .      .  206: 			
+     .      .  207: int main(int argc, char **argv)
+     .      .  208: {
+     .      .  209: 	int c;
+ROUTINE ====================== func in /u/cs/ugrad/yanyin/CS111/project2b/lab2_list.c
+     0   1392 Total samples (flat / cumulative)
+     .      .  138: 	}
+     .      .  139: }
+     .      .  140: 
+     .      .  141: 
+     .      .  142: void* func(void *th_arg)
+---
+     .      .  143: {
+     .      .  144: 	struct threadargs *data;
+     .      .  145: 	data = (struct threadargs*) th_arg;
+     .      .  146: 	char op = data->sync_option;
+     .      .  147: 	long sublist_num;
+     .      .  148: 	for(int i=0; i<data->niterate; i++)
+     .      .  149: 	{
+     .      .  150: 		//  select which sub-list a particular key should be in based on a simple hash of the key, modulo the number of lists.
+     .      .  151: 		const char *key = data->elements[i]->key;
+     .      .  152: 		sublist_num = ((int)hash(key)) % data->nlist;
+     .      .  153: 		// in case there the sublist_num for some reasons is negative
+     .      .  154: 		if(sublist_num < 0)
+     .      .  155: 		{
+     .      .  156: 			sublist_num = sublist_num * (-1);
+     .      .  157: 		}
+     .      .  158: 
+     .    568  159: 		operation(op, 1, data->sub_list[sublist_num]); // lock
+     .      .  160: 		// critical section
+     .      .  161: 		SortedListElement_t *elements = data->elements[i];
+     .      .  162: 		//inserts them all into a (single shared-by-all-threads) list
+     .    119  163: 		SortedList_insert(data->sub_list[sublist_num]->lists, elements);
+     .      .  164: 		operation(op, 0, data->sub_list[sublist_num]); // release the lock
+     .      .  165: 	}
+     .      .  166: 
+     .      .  167: 	for(int i=0; i<data->nlist; i++)
+     .      .  168: 	{
+     .      .  169: 		operation(op, 1, data->sub_list[i]); // lock
+     .      .  170: 		// critical section
+     .      .  171: 		// gets the list length
+     .      .  172: 		if(SortedList_length(data->sub_list[i]->lists)<0)
+     .      .  173: 		{
+     .      .  174: 			fprintf(stderr, "Error on getting the length of sublist!!\n");
+     .      .  175: 			exit(2);
+     .      .  176: 		}
+     .      .  177: 		operation(op, 0, data->sub_list[i]); // release the lock
+     .      .  178: 	}
+     .      .  179: 	
+     .      .  180: 
+     .      .  181: 	// looks up and deletes each of the keys it had previously inserted
+     .      .  182: 	for(int i=0; i<data->niterate; i++)
+     .      .  183: 	{
+     .      .  184: 		const char *key = data->elements[i]->key;
+     .      .  185: 		sublist_num = ((int)hash(key)) % data->nlist;
+     .      .  186: 		// in case there the sublist_num for some reasons is negative
+     .      .  187: 		if(sublist_num < 0)
+     .      .  188: 		{
+     .      .  189: 			sublist_num = sublist_num * (-1);
+     .      .  190: 		}
+     .      .  191: 
+     .    596  192: 		operation(op, 1, data->sub_list[sublist_num]); // lock
+     .      .  193: 		// critical section
+     .    109  194: 		SortedListElement_t * elements = SortedList_lookup(data->sub_list[sublist_num]->lists, data->elements[i]->key);
+     .      .  195: 		if(SortedList_delete(elements) == 1) // delete failed
+     .      .  196: 		{
+     .      .  197: 			fprintf(stderr, "Error! Fail to delete elements\n");
+     .      .  198: 			exit(2);
+     .      .  199: 		}
+     .      .  200: 		operation(op, 0, data->sub_list[sublist_num]); // release the lock
+     .      .  201: 	}
+     .      .  202: 	
+     .      .  203: 	// exits to re-join the parent thread
+     .      .  204: 	pthread_exit(0);
+---
+     .      .  205: }
+     .      .  206: 			
+     .      .  207: int main(int argc, char **argv)
+     .      .  208: {
+     .      .  209: 	int c;
