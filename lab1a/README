@@ -1,0 +1,33 @@
+NAME: Yanyin Liu
+EMAIL: yanyinliu8@gmail.com
+ID: 604952257
+
+Included files: 
+1. lab1a.c: Set the the keyboard to non-canonical input mode, and allow to read input from keyboard to a buffer,
+then write the received characters back out to the display. The program also support --shell argument (in child process),
+and a new process is made. With these support, we can pass input/output between the terminal and a shell using two pipes.
+In the Child process (shell), we can run the commands that is received from the read end of to_child_pipe (from terminal 
+to shell), and its write to stdard out or standard error, the write end of to_parent_pipe. In the parent process (terminal),
+we get input from stdin or shell, and write the stdout or forward to shell. Here, we use the poll() to  wait for the first
+of multiple input sources (stdin or input from shell).
+
+2. Makefile: this support the standard default, clean and dist targets.
+
+3. README
+
+Resources I used to study to finish the project:
+1. The GNU C Library: 
+	https://www.gnu.org/software/libc/manual/html_node/Noncanon-Example.html
+	https://www.gnu.org/software/libc/manual/html_node/index.html#toc-Low_002dLevel-Terminal-Interface-1
+
+2. Example to explore how to use the poll(), waitpid(), 
+	https://www.ibm.com/support/knowledgecenter/en/ssw_i5_54/rzab6/poll.htm
+	http://www.csd.uwo.ca/~mburrel/teaching/3357/poll.html
+	https://support.sas.com/documentation/onlinedoc/sasc/doc/lr2/waitpid.htm
+
+3. man page:
+	http://man7.org/linux/man-pages/man2/poll.2.html
+	https://linux.die.net/man/2/waitpid
+	http://man7.org/linux/man-pages/man7/pipe.7.html
+	https://linux.die.net/man/3/execvp
+	http://www.tutorialspoint.com/unix_system_calls/signal.htm
