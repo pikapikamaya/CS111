@@ -1,8 +1,6 @@
 #!/bin/bash
 
 # NAME: Yanyin Liu
-# EMAIL: yanyinliu8@gmail.com
-# ID: 604952257
 
 
 # Run your program for ranges of iterations (100, 1000, 10000, 100000) values (with no thread and no yield)
