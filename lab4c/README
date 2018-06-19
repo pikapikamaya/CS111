@@ -1,6 +1,5 @@
 NAME: Yanyin Liu
-EMAIL: yanyinliu8@gmail.com
-ID: 604952257
+
 
 Included files:
 1. lab4c_tcp.c : accepts the same commands and generates the same reports as the previous Beaglebone project, 
@@ -8,10 +7,3 @@ but now the input and output are from/to a network connection to a server.
 2. lab4c_tls.c : use Authenticated TLS Session Encryption, opening a TLS connection to the server at the specified address and port
 3. Makefile - A file to build and test the application. The higher level targets should include: default, clean, disk
 4. README
-
-Resources:
-1. Example of how to use openssl/sslconnect:
-http://fm4dd.com/openssl/sslconnect.htm
-
-2. Documentation for the OpenSSL, SSL/TLS library:
-https://www.openssl.org/docs/manmaster/man7/ssl.html
