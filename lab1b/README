@@ -1,0 +1,39 @@
+NAME: Yanyin Liu
+EMAIL: yanyinliu8@gmail.com
+ID: 604952257
+
+Include files:
+1. lab1b-client.c: takes three options, --port=port#, --log=filename, and --compress.
+The client program will send input from the keyboard to socket and input from the socket to display.
+When the log option is specified, it will write the data written to or read from the server to the
+specified log file. When the compress option is specified, it will compress the data before sending
+it over the network and decompress it after receiving.
+
+2. lab1b-server.c: takes two options,  --port=port#, and --compress.
+It will connect to the client and send the command received from the client to the shell, and will
+serve the client program. 
+
+3. Makefile: this included the -lz flag to do the deflate and inflate.
+
+4. README
+
+
+Used the following sources:
+
+Open source for the usage of memmove() and memset():
+http://pubs.opengroup.org/onlinepubs/009695399/functions/bcopy.html
+http://pubs.opengroup.org/onlinepubs/009696799/functions/bzero.html
+https://www.geeksforgeeks.org/memset-c-example/
+
+Sockets Tutorial:
+http://www.cs.rpi.edu/~moorthy/Courses/os98/Pgms/socket.html
+https://www.tutorialspoint.com/unix_sockets/socket_server_example.htm
+https://www.tutorialspoint.com/unix_sockets/socket_client_example.htm
+
+Compress:
+https://www.zlib.net/manual.html#Introduction
+https://www.zlib.net/zlib_how.html
+
+
+
+
