@@ -1,0 +1,6 @@
+NAME: Yanyin Liu,Shawye Ho
+
+
+This tarball includes two c files, lab3a.c (regular c file) and ext2_fs.h (c header file for ext2 file system), 
+that build into an executable (lab3a) that investigates an ext2 file image, a Makefile to build it (supporting 
+default, dist, and clean targets), as well as this README.
