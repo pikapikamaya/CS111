@@ -1,0 +1,24 @@
+NAME: Yanyin Liu
+EMAIL: yanyinliu8@gmail.com
+ID: 604952257
+
+Serial number of my Beaglebone: BBGW17090297
+WiFi: Wi-Fi is connected to UCHA219-5G and has the IP address 192.168.0.4.
+MAC address: 24:f0:94:f3:d8:24
+
+
+Included files:
+1. a selfie (my_beaglebone.jpg) of me holding your assembled Beaglebone (showing the chip).
+
+2. a screen shot (connected.png) from a USB terminal command session connected to my system,
+change my hostname to 604952257.lasr.cs.ucla.edu, and connected to my room's wifi.
+
+3. a screen shot (copy.png) from a local session in which I copy a hello world program from
+my laptop to my Beaglebone using sftp.
+
+4. a screen shot (build_run.png) from a WIFI SSH session in which I build and run a trivial 
+(hello world) program.
+
+5. a screen shot (git.png) from a WIFI SSH session in which I install git and clone a repository.
+
+6. README
