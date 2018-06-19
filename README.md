@@ -1,2 +1,2 @@
 # CS111
-Spring 2018
+Spring 2018 UCLA
