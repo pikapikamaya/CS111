@@ -1,0 +1,7 @@
+NAME: Shawye Ho,Yanyin Liu
+
+This tarball contains a python source module to run, a Makefile supporting the default ($ make), clean, 
+and dist targets, and this README.
+
+This source might fail if a particular inode is given two parents; it is impossible to know what parent 
+is correct, so the later one is chosen.
