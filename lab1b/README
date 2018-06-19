@@ -1,6 +1,4 @@
 NAME: Yanyin Liu
-EMAIL: yanyinliu8@gmail.com
-ID: 604952257
 
 Include files:
 1. lab1b-client.c: takes three options, --port=port#, --log=filename, and --compress.
