@@ -1,0 +1,38 @@
+NAME: Yanyin Liu
+EMAIL: yanyinliu8@gmail.com
+ID: 604952257
+
+My tarball includes files: lab0.c, Makefile, backtrace.png, breakpoint.png, README
+
+In my smoke-test cases, I focused on these cases:
+1. Check if copying files with correct exit code (exit code should be 0)
+2. Check if copying files correctly by comparing the input file and output file
+3. Check if handling the unrecognized argument correctly (exit code should be 1)
+4. Check if handling the case that unable to open input file correctly (exit code should be 2)
+5. Check if handling the case that unable to open/create output file correctly (exit code should be 3)
+6. Check if caught and received SIGSEGV correctly (exit code 4)
+
+
+Sources:
+These are the links I used to get more information of some commands:
+1. getopt(3) and getopt_long(), and examples of them
+http://man7.org/linux/man-pages/man3/getopt.3.html
+https://www.gnu.org/software/libc/manual/html_node/Example-of-Getopt.html
+https://www.gnu.org/software/libc/manual/html_node/Getopt-Long-Option-Example.html
+
+2. signal()
+https://www.thegeekstuff.com/2012/03/catch-signals-sample-c-code
+
+3. dup2() and dup()
+https://www.geeksforgeeks.org/dup-dup2-linux-system-call/
+http://man7.org/linux/man-pages/man2/dup.2.html
+http://www.cs.loyola.edu/~jglenn/702/S2005/Examples/dup2.html
+
+4. creat(3)
+https://linux.die.net/man/3/creat
+
+5. strerror()
+http://www.tutorialspoint.com/ansi_c/c_strerror.htm
+
+6. Makefile
+https://www.gnu.org/software/make/manual/html_node/Echoing.html
