@@ -1,7 +1,4 @@
 # NAME: Yanyin Liu
-# EMAIL: yanyinliu8@gmail.com
-# ID: 604952257
-
 FILES = lab2_list.c Makefile README SortedList.h SortedList.c lab2b_list.csv *.png profile.out test.sh *.gp
 FILES2 = lab2_list *.tar.gz
 #FILES2 = lab2_list *.tar.gz *.png lab2b_list.csv
