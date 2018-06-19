@@ -4,17 +4,17 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <termios.h> // for termios functions
+#include <termios.h> 
 #include <unistd.h> 
 #include <errno.h>
 #include <string.h>
-#include <getopt.h> // header file for getopt_long()
-#include <signal.h> // header file for signal()
+#include <getopt.h> 
+#include <signal.h> 
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <poll.h>
 #include <sys/wait.h>
-#include <fcntl.h> // header for create the file
+#include <fcntl.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
@@ -78,7 +78,7 @@ int main(int argc, char **argv)
         {
         	case PORT:
         			portflag = 1;
-        			portnum = atoi((char*) optarg); // port number
+        			portnum = atoi((char*) optarg); 
         			break;
         	
         	case COMPRESS:
@@ -97,8 +97,6 @@ int main(int argc, char **argv)
         exit(1);
 	}
 
-	// CREATE A NEW SOCKET
-	// socket (address domain, type of socket, protocol)
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if(sockfd < 0)
 	{
@@ -106,17 +104,11 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	// sets all values in a buffer to zero
-	// bzero((char *) &serv_addr, sizeof(serv_addr));
-	// bcopy((char*) server->h_addr, (char*) &serv_addr.sin_addr.s_addr, server->h_length);
-	// from open source online, (also TA mentioned in class) memset() is preferred over bzero()
-	// and memcpy() is preferred over the bcopy()
 	memset((char*) &serv_addr, 0, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = INADDR_ANY;
 	serv_addr.sin_port = htons(portnum);
 
-	// client establishs a connection to the server
 	if(bind(sockfd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
 	{
 		fprintf(stderr, "Error! Fail on binding!\n");
@@ -128,7 +120,6 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 	clilen = sizeof(cli_addr);
-	// accept the connection from the client
 	newsockfd = accept(sockfd, (struct sockaddr*) &cli_addr, &clilen);
 	if(newsockfd<0)
 	{
@@ -148,7 +139,7 @@ int main(int argc, char **argv)
 	}
 	child_pid = fork();
 
-	if(child_pid > 0) // parent process
+	if(child_pid > 0) 
 	{
 		close(to_parent_pipe[1]);
 		close(to_child_pipe[0]);
@@ -159,18 +150,18 @@ int main(int argc, char **argv)
 		char ch;
 		ssize_t check3;
 		unsigned char buffer[BUFFER_SIZE];
-		unsigned char outputbuffer[OUTBUFFER_SIZE]; // output data buffer
+		unsigned char outputbuffer[OUTBUFFER_SIZE]; 
 		for(;;)
 		{
-			fds[0].fd = newsockfd; // describing the keyboard (stdin)
-			fds[1].fd = to_parent_pipe[0]; // describing the pipe that returns output from the shell (read)
+			fds[0].fd = newsockfd; 
+			fds[1].fd = to_parent_pipe[0]; 
 			fds[0].events = POLLIN | POLLHUP | POLLERR;
 			fds[1].events = POLLIN | POLLHUP | POLLERR;
 			fds[0].revents = 0;
 			fds[1].revents = 0;
 
 			c = poll(fds, 2, 0);
-			if (c==0) // timeout
+			if (c==0) 
 			{
 				continue;
 			}
@@ -180,7 +171,7 @@ int main(int argc, char **argv)
 				exit(1);
 			}
 			
-			// read input from the keyboard, echo it to stdout, and forward it to the shell
+			
 			if(fds[0].revents & POLLIN)
 			{
 				
@@ -197,7 +188,7 @@ int main(int argc, char **argv)
 					strm1.zfree = Z_NULL;
 					strm1.opaque = Z_NULL;
 
-					// initialize the zlib state for decompression
+					
 					checkinf1 = inflateInit(&strm1);
 					if(checkinf1 != Z_OK)
 					{
@@ -221,14 +212,13 @@ int main(int argc, char **argv)
 					for(int i=0; i<ret; i++)
 					{
 						ch = outputbuffer[i];
-						if(outputbuffer[i] == '\r' || outputbuffer[i] == '\n') // map received <cr> or <lf> into <cr><lf> 
+						if(outputbuffer[i] == '\r' || outputbuffer[i] == '\n') 
 						{
 							char temp = '\n';
 							write(to_child_pipe[1], &temp, 1);
 						}
 						else if((outputbuffer[i] == 0x03) || (outputbuffer[i] == 0x04))
 						{
-							// close the related pipe to terminate
 							close(to_child_pipe[1]);
 							close(to_parent_pipe[0]);
 							close(sockfd);
@@ -244,7 +234,7 @@ int main(int argc, char **argv)
 								exit(1);
 							}
 
-							// SHELL EXIT SIGNAL=# STATUS=#
+							
 							if(end_ID == child_pid)
 							{
 								close(to_parent_pipe[0]);
@@ -258,22 +248,22 @@ int main(int argc, char **argv)
 						}
 					}
 				}
-				else // not compressed, no need to decompress
+				else
 				{
 					for(int i=0; i<check3; i++)
 					{
 						ch = buffer[i];
-						if(buffer[i] == '\r' || buffer[i] == '\n') // map received <cr> or <lf> into <cr><lf> 
+						if(buffer[i] == '\r' || buffer[i] == '\n') 
 						{
 							char temp = '\n';
 							write(to_child_pipe[1], &temp, 1);
 						}
-						else if(buffer[i] == 0x03) // CTRLC
+						else if(buffer[i] == 0x03) 
 						{
 							kill(child_pid, SIGINT);
 				
 						}
-						else if(buffer[i] == 0x04) // CTRLD
+						else if(buffer[i] == 0x04)
 						{
 							close(to_child_pipe[1]);
 							close(to_parent_pipe[0]);
@@ -304,9 +294,6 @@ int main(int argc, char **argv)
 			}
 
 
-			/*The field revents is an output parameter, filled by the kernel with
-			the events that actually occurred.  */
-
 			if(fds[0].revents & (POLLHUP | POLLERR))
 			{			
 				close(to_child_pipe[1]);
@@ -320,7 +307,7 @@ int main(int argc, char **argv)
 					exit(1);
 				}
 
-				// SHELL EXIT SIGNAL=# STATUS=#
+			
 				if(end_ID == child_pid)
 				{
 					close(to_parent_pipe[0]);
@@ -329,7 +316,7 @@ int main(int argc, char **argv)
 				}
 			}
 
-			// read input from the shell pipe  
+			
 			if(fds[1].revents & POLLIN)
 			{
 				check3 = read(to_parent_pipe[0], buffer, BUFFER_SIZE);
@@ -346,7 +333,6 @@ int main(int argc, char **argv)
 					strm2.zfree = Z_NULL;
 					strm2.opaque = Z_NULL;
 
-					// initialize the zlib state for compression
 					checkdef1 = deflateInit(&strm2, Z_DEFAULT_COMPRESSION);
 					if(checkdef1 != Z_OK)
 					{
@@ -395,7 +381,6 @@ int main(int argc, char **argv)
 					exit(1);
 				}
 
-				// SHELL EXIT SIGNAL=# STATUS=#
 				if(end_ID == child_pid)
 				{
 					close(to_parent_pipe[0]);
@@ -408,13 +393,13 @@ int main(int argc, char **argv)
 		}
 
 	}
-	else if(child_pid == 0) // child process
+	else if(child_pid == 0) 
 	{
 		close(to_child_pipe[1]);
-		close(to_parent_pipe[0]); // we read from the terminal, this end is not needed
-		dup2(to_child_pipe[0], 0); //standard input is a pipe from the terminal process,
-		dup2(to_parent_pipe[1], 1); // standard output is a pipe to the terminal process
-		dup2(to_parent_pipe[1], 2); //standard error is a pipe to the terminal process
+		close(to_parent_pipe[0]);
+		dup2(to_child_pipe[0], 0);
+		dup2(to_parent_pipe[1], 1); 
+		dup2(to_parent_pipe[1], 2);
 		close(to_child_pipe[0]);
 		close(to_parent_pipe[1]);
 
@@ -429,7 +414,7 @@ int main(int argc, char **argv)
 			exit(1);
 		}
 	}
-	else // child_pid < 0
+	else 
 	{
 		fprintf(stderr, "Ooh..fork() failed: %s\n", strerror(errno));
 		exit(1);
