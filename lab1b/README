@@ -18,22 +18,5 @@ serve the client program.
 4. README
 
 
-Used the following sources:
-
-Open source for the usage of memmove() and memset():
-http://pubs.opengroup.org/onlinepubs/009695399/functions/bcopy.html
-http://pubs.opengroup.org/onlinepubs/009696799/functions/bzero.html
-https://www.geeksforgeeks.org/memset-c-example/
-
-Sockets Tutorial:
-http://www.cs.rpi.edu/~moorthy/Courses/os98/Pgms/socket.html
-https://www.tutorialspoint.com/unix_sockets/socket_server_example.htm
-https://www.tutorialspoint.com/unix_sockets/socket_client_example.htm
-
-Compress:
-https://www.zlib.net/manual.html#Introduction
-https://www.zlib.net/zlib_how.html
-
-
 
 
