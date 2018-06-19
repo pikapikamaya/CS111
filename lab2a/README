@@ -1,0 +1,155 @@
+NAME: Yanyin Liu
+EMAIL: yanyinliu8@gmail.com
+ID: 604952257
+
+Included files:
+1. lab2_add.c (a C program that implements and tests a shared variable add function, 
+implements the (below) specified command line options, and produces the (below) specified output statistics.)
+
+2. SortedList.h (a header file describing the interfaces for linked list operations.)
+
+3. SortedList.c (a C module that implements insert, delete, lookup, and length methods for a sorted doubly linked list)
+
+4. lab2_list.c (a C program that implements the specified command line options and produces the specified output statistics.)
+
+5. Makefile (has working clean, dist, test, and graphs targets)
+
+6. lab2_add.csv (containing all of the results for all of the Part-1 tests.)
+
+7. lab2_list.csv (containing all of the results for all of the Part-2 tests.)
+
+8. graphs (.png files):
+lab2_add-1.png (threads and iterations required to generate a failure (with and without yields))
+lab2_add-2.png (average time per operation with and without yields.)
+lab2_add-3.png (average time per (single threaded) operation vs. the number of iterations.)
+lab2_add-4.png (threads and iterations that can run successfully with yields under each of the synchronization options.)
+lab2_add-5.png (average time per (protected) operation vs. the number of threads.)
+lab2_list-1.png (average time per unprotected operation vs. number of iterations.)
+lab2_list-2.png ( threads and iterations required to generate a failure (with and without yields).)
+lab2_list-3.png (iterations that can run (protected) without failure.)
+lab2_list-4.png ((length-adjusted) cost per operation vs the number of threads for the various synchronization options.)
+
+9. test.sh (test script to generate all the results for part-1 tests and part2-tests)
+
+10. README
+
+11. lab2_add.gp (sample (gnuplot) data reduction scripts)
+
+12. lab2_list.gp (sample (gnuplot) data reduction scripts)
+
+
+
+****************************************************************************************************************
+****************************************************************************************************************
+
+Research/Sources:
+1. Using calloc(): https://www.geeksforgeeks.org/calloc-versus-malloc/ 
+2. functions to directly execute atomic read-modify-write operations: https://gcc.gnu.org/onlinedocs/gcc-4.4.3/gcc/Atomic-Builtins.html 
+3. clock_gettime(2): http://man7.org/linux/man-pages/man2/clock_gettime.2.html
+ and https://www.cs.rutgers.edu/~pxk/416/notes/c-tutorials/gettime.html
+4. Tutorial on pthreads: https://computing.llnl.gov/tutorials/pthreads/#CreatingThreads
+5. strcmp(): https://www.tutorialspoint.com/c_standard_library/c_function_strcmp.htm
+6. Linked list: https://www.geeksforgeeks.org/linked-list-set-2-inserting-a-node/
+
+
+****************************************************************************************************************
+****************************************************************************************************************
+
+QUESTION 2.1.1 - causing conflicts:
+
+(1) Why does it take many iterations before errors are seen?
+Because more iterations will be easy to raise the race condiction because there will be more operations will
+operate in critical sections. Also, creating thread has cost. If there is large number of iterations, it will be
+likely to make mutiple threads to do the job in the critical section, which potentially causes errors.
+
+(2) Why does a significantly smaller number of iterations so seldom fail?
+Similar to part 1, if there is less interations, there will be less likely to raise the race condiction, and so
+there is less likely to be more operations or time spent on critical section.
+
+
+
+QUESTION 2.1.2 - cost of yielding:
+Why are the --yield runs so much slower?
+Where is the additional time going?
+Is it possible to get valid per-operation timings if we are using the --yield option?
+If so, explain how. If not, explain why not.
+
+(1) --yield runs so much slower because when yielding, context switch happened. Yield() or sched_yield() will
+release the CPU and let the other thread in the waiting queue to have it and do operations. Context switch takes time
+and it will degrade the system performance.
+
+(2) From the lab2_add-2.png, we can see the difference of average time per operation between with and without yields.
+And it shows that it is about 10 times more to go with --yield option.
+
+(3) It is impossible to get valid per-operation timings if we are using the --yield option because we use multiple threads
+in our projects. And we cannot measure exact time because of some overhead spent in yield, lock and unlock, and there
+are context switches that we cannot get rid of it.
+
+
+
+QUESTION 2.1.3 - measurement errors:
+Why does the average cost per operation drop with increasing iterations?
+If the cost per iteration is a function of the number of iterations, how do we know how many iterations to run 
+(or what the "correct" cost is)?
+
+(1) The average cost per operation drop with increasing iterations mainly because the cost is mostly affected by
+the time consuming on creating the thread, the cost of yield, lock, and context switch. The fact that time spending
+in creating threads is more than doing iterations, so we can focus on the time spent in thread creation. However, as
+the iterations increase, the cost of these overhead will be smaller, and so the cost per operation will decrease.
+
+(2) If the cost per iteration is a function of the number of iterations, a way that we know how many iterations to run is
+to increase the number of iteration, and so we will get a stable line. Because more iterations will get a more closed number
+of average cost per operations, in such cases, the overhead can be minimized.
+
+
+
+QUESTION 2.1.4 - costs of serialization:
+Why do all of the options perform similarly for low numbers of threads?
+Why do the three protected operations slow down as the number of threads rises?
+
+(1) All of the options perform similarly for low numbers of threads becuase there is less contention, which means threads
+takes less amount of time to get the lock. However, as the number of threads increases, the contention of acquiring the
+lock will increases, and so the performance for all the options will pontentially decrease.
+
+(2) Three protected operations slow down as the number of threads rises because the contention of acquiring the lock increases.
+To deal with it, the mutexes will cause the thread to sleep and wake it up until the lock is released by the holder of the lock;
+for the spin lock, it basically just spin-waiting for the lock until it is avaliable, this way wastes the CPU cycle; for compare and
+swaps, it will wait until the lock is realsed. These three operations will take some extra time and so slow down as the number 
+of threads rises.
+
+
+
+QUESTION 2.2.1 - scalability of Mutex
+Compare the variation in time per mutex-protected operation vs the number of threads in Part-1 (adds) and Part-2 (sorted lists).
+Comment on the general shapes of the curves, and explain why they have this shape.
+Comment on the relative rates of increase and differences in the shapes of the curves, and offer an explanation for these differences.
+
+(1) Comparing the graph lab2_add-5.png and lab2_list-4.png, we can see the in part 1, per mutex-protected operations increases in
+the first 2 or threads, and then its trend to increase slow down and may a bit decrease. In part 2, per mutex-protected operations 
+keeps increasing. Also, comparing two graph with the same number of threads, part 1 takes more number of operations.
+
+(2) The curve in part 1 increases for some amount of threads and then slow down and seems reach the steady state. However, the curve
+in part 2 has a trend of keep increasing. I think it is because as the number of threads increase, there might be more contention
+on part 2, for the list to acquire the lock, however.
+
+(3) It seeems that the curve in part 1 is more steady, but in part 2, the curve is more like a straight line increasing.
+I think it is because there is more contention of lock in part 2, and its critical section is larger than the critical
+section is part 1, and so it cost more time on the critical section.
+
+
+
+QUESTION 2.2.2 - scalability of spin locks
+Compare the variation in time per protected operation vs the number of threads for list operations protected by Mutex vs Spin locks. 
+Comment on the general shapes of the curves, and explain why they have this shape.
+Comment on the relative rates of increase and differences in the shapes of the curves, and offer an explanation for these differences.
+
+For part 1, (lab2_add-5.png), the curve of mutex protected at first shows that it takes more operations than spin lock takes with
+the same amount of threads, and with abot the same increase rate, but after 4 threads, the spin lock curve increases faster
+than the mutex protected curve. In part 2, (lab2_list-4.png) shows that two curves are basically closed to each other, but most of the
+time, the mutex protected curve has a bit more operations than the spin lock protected curve. And for part 2, both curves are prone to
+keep increasing.
+I think the difference here is because in part 1, the spin lock needs to spin-waiting for the locks, so as the number of threads increases,
+it will takes longer because it need to checking and waiting for the lock to be realeased. In part 2, since the critical section is
+big, and so both protected options need to take time on it.
+
+
