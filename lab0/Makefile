@@ -1,7 +1,4 @@
 # NAME: Yanyin Liu
-# EMAIL: yanyinliu8@gmail.com
-# ID: 604952257
-
 FILES = lab0.c Makefile README *.png
 
 default:
