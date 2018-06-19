@@ -1,8 +1,7 @@
 #! /usr/bin/gnuplot
 #
 # NAME: Yanyin Liu
-# EMAIL: yanyinliu8@gmail.com
-# ID: 604952257
+
 #
 # purpose:
 #     generate data reduction graphs for the multi-threaded list project
