@@ -17,19 +17,13 @@
 
 #define BILLION  1000000000L
 
-// void add(long long *pointer, long long value) {
-//     long long sum = *pointer + value;
-//     *pointer = sum;
-// }
-
-//  initialize a mutex variable:
 pthread_mutex_t mymutex = PTHREAD_MUTEX_INITIALIZER;
 
 volatile int spin_lock = 0;
 static int key_len =10;
 char * keyset = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 struct threadargs{
-	// long long *counter;
+	
 	int niterate;
 	char sync_option;
 	SortedList_t *list;
@@ -47,21 +41,21 @@ void handler(int signo)
 
 char* get_random()
 {
-	// for generating random keys
+	
 	srand((unsigned int) time (NULL));
 	char *k = (char*)malloc(key_len *sizeof(char));
 	for(int i=0; i<key_len; i++)
 	{
 		k[i] = keyset[rand()%61];
 	}
-	k[key_len] = '\0'; // NULL in the end
+	k[key_len] = '\0'; 
 	return k;
 }
 
-// helper function to implement mutex and spin lock
+
 void operation(char op, int lockflag)
 {
-	if(op == 'm') // mutex synchronization
+	if(op == 'm')
 	{
 		if(lockflag) pthread_mutex_lock(&mymutex);
 		else pthread_mutex_unlock(&mymutex);
@@ -78,107 +72,41 @@ void operation(char op, int lockflag)
 		}
 	}
 }
-// }
+
 void* func(void *th_arg)
 {
 	struct threadargs *data;
 	data = (struct threadargs*) th_arg;
 	char op = data->sync_option;
-	// starts with a set of pre-allocated and initialized elements (--iterations=#)
-	// if(op == 'm')
-	// {
-	// 	for(int i=0; i<data->niterate; i++)
-	// 	{
-	// 		pthread_mutex_lock(&mymutex); // lock
-	// 		// critical section
-	// 		SortedListElement_t * elements = data->elements[i];
-	// 		//inserts them all into a (single shared-by-all-threads) list
-	// 		SortedList_insert(data->list, elements);
-	// 		pthread_mutex_unlock(&mymutex); // release the lock
-	// 	}
+	
 
-	// 	pthread_mutex_lock(&mymutex); // lock
-	// 	// critical section
-	// 	// gets the list length
-	// 	SortedList_length(data->list);
-	// 	pthread_mutex_unlock(&mymutex); // release the lock
-
-	// 	// looks up and deletes each of the keys it had previously inserted
-	// 	for(int i=0; i<data->niterate; i++)
-	// 	{
-	// 		pthread_mutex_lock(&mymutex); // lock
-	// 		// critical section
-	// 		SortedListElement_t * elements = SortedList_lookup(data->list, data->elements[i]->key);
-	// 		if(SortedList_delete(elements) == 1) // delete failed
-	// 		{
-	// 			fprintf(stderr, "Error! Fail to delete elements\n");
-	// 			exit(2);
-	// 		}
-	// 		pthread_mutex_unlock(&mymutex); // release the lock
-	// 	}
-	// }
-	// else if(op == 's')
-	// {
-	// 	for(int i=0; i<data->niterate; i++)
-	// 	{
-	// 		while (__sync_lock_test_and_set(1, 1)); // lock
-	// 		// critical section
-	// 		SortedListElement_t * elements = data->elements[i];
-	// 		//inserts them all into a (single shared-by-all-threads) list
-	// 		SortedList_insert(data->list, elements);
-	// 		__sync_lock_release(0);// release the lock
-	// 	}
-
-	// 	while (__sync_lock_test_and_set(1, 1)); // lock
-	// 	// critical section
-	// 	// gets the list length
-	// 	SortedList_length(data->list);
-	// 	__sync_lock_release(0); // release the lock
-
-	// 	// looks up and deletes each of the keys it had previously inserted
-	// 	for(int i=0; i<data->niterate; i++)
-	// 	{
-	// 		while (__sync_lock_test_and_set(1, 1)); // lock
-	// 		// critical section
-	// 		SortedListElement_t * elements = SortedList_lookup(data->list, data->elements[i]->key);
-	// 		if(SortedList_delete(elements) == 1) // delete failed
-	// 		{
-	// 			fprintf(stderr, "Error! Fail to delete elements\n");
-	// 			exit(2);
-	// 		}
-	// 		__sync_lock_release(0); // release the lock
-	// 	}
 		for(int i=0; i<data->niterate; i++)
 		{
-			operation(op, 1); // lock
-			// critical section
+			operation(op, 1);
+			
 			SortedListElement_t * elements = data->elements[i];
-			//inserts them all into a (single shared-by-all-threads) list
+			
 			SortedList_insert(data->list, elements);
-			operation(op, 0); // release the lock
+			operation(op, 0); 
 		}
 
-		operation(op, 1); // lock
-		// critical section
-		// gets the list length
+		operation(op, 1); 
+		
 		SortedList_length(data->list);
-		operation(op, 0); // release the lock
+		operation(op, 0); 
 
-		// looks up and deletes each of the keys it had previously inserted
 		for(int i=0; i<data->niterate; i++)
 		{
-			operation(op, 1); // lock
-			// critical section
+			operation(op, 1);
 			SortedListElement_t * elements = SortedList_lookup(data->list, data->elements[i]->key);
-			if(SortedList_delete(elements) == 1) // delete failed
+			if(SortedList_delete(elements) == 1) 
 			{
 				fprintf(stderr, "Error! Fail to delete elements\n");
 				exit(2);
 			}
-			operation(op, 0); // release the lock
+			operation(op, 0); 
 		}
 	
-	// exits to re-join the parent thread
 	pthread_exit(0);
 }
 			
@@ -189,7 +117,7 @@ int main(int argc, char **argv)
 	int nthread = 1, niterate = 1;
 	struct timespec start, stop;
 	int yieldflag = 0, syncflag=0;
-	//long long counter = 0;
+	
 	char sync_option = ' ';
 	char *name = (char*) malloc(15*sizeof(char));
 	SortedList_t *list = (SortedList_t *) malloc(sizeof(SortedList_t*));
@@ -204,7 +132,7 @@ int main(int argc, char **argv)
 		{0,0,0,0}
 	};
 
-	//int opt; // use to get the option characters
+	
 	while(1)
 	{
 		c = getopt_long(argc, argv, "", long_options, NULL);
@@ -212,7 +140,7 @@ int main(int argc, char **argv)
 		{
 			break;
 		}
-		//fprintf(stderr, "c: %c, optind: %d, optarg: %s\n", c, optind, optarg);
+		
 		switch(c)
 		{
 			case THREADS:
@@ -232,8 +160,7 @@ int main(int argc, char **argv)
 				}
 				break;
 			case YIELD:
-				// opt_yield = 1;
-				//yieldopts = {none, i,d,l,id,il,dl,idl}
+				
 				if(strlen(optarg) > 3)
 				{
 					fprintf(stderr, "Error! Invalid option for yield\n");
@@ -277,15 +204,10 @@ int main(int argc, char **argv)
 				exit(1);
 		}
 	}
-
-	// Note that in some cases your program may not detect an error, but may simply
-	// experience a segmentation fault
 	signal(SIGSEGV, handler);
 
 	struct threadargs** th_args = (struct threadargs**)malloc(nthread * sizeof(struct threadargs*));
-	// creates and initializes (with random keys) the required number (threads x iterations) of list elements.
 	
-	// SortedListElement_t** elementslist = (SortedListElement_t **)malloc(nthread * niterate * sizeof(SortedListElement_t*));
 	for(int i=0; i<nthread; i++)
 	{
 		th_args[i] = (struct threadargs*) malloc(sizeof(struct threadargs));
@@ -295,21 +217,20 @@ int main(int argc, char **argv)
 		th_args[i]->niterate = niterate;
 		th_args[i]->sync_option = sync_option;
 		th_args[i]->list = list;
-		//th_args[i]->counter = &counter;
+		
 		SortedListElement_t** elementslist = (SortedListElement_t **)malloc(niterate * sizeof(SortedListElement_t*));
-		// th_args[i] = (struct threadargs*) malloc(sizeof(struct threadargs));
+		
 		for(int j=0; j<niterate; j++)
 		{
 			elementslist[j] = (SortedListElement_t *)malloc(sizeof(SortedListElement_t));
 			elementslist[j]->key = get_random();
-			elementslist[j]->next = NULL; //empty list
+			elementslist[j]->next = NULL; 
 			elementslist[j]->prev = NULL;
 		}
 		th_args[i]->elements = elementslist;
 		
 	}
 	
-	// return 0 for success, or -1 for failure
 	if(clock_gettime(CLOCK_MONOTONIC, &start) == -1)
 	{
 		fprintf(stderr, "Error on starting time for the run!\n");
@@ -317,7 +238,7 @@ int main(int argc, char **argv)
 		{
 			free(th_args[i]);
 		}
-		// free(elementslist);
+		
 		free(list);
 		exit(1);
 	}
@@ -346,13 +267,11 @@ int main(int argc, char **argv)
 		{
 			free(th_args[i]);
 		}
-		// free(elementslist);
+		
 		free(list);
 		exit(1);
 	}
 
-
-	// checks the length of the list to confirm that it is zero.
 	if(SortedList_length(list) !=0)
 	{
 		fprintf(stderr, "Error! The length of list is not zero!\n");
@@ -360,15 +279,10 @@ int main(int argc, char **argv)
 		{
 			free(th_args[i]);
 		}
-		// free(elementslist);
 		free(list);
 		exit(1);
 	}
-	//prints to stdout a comma-separated-value (CSV)
-	// char *name = (char*) malloc(15*sizeof(char));
-	// name = "add-none";
 
-	// create the name
 	strcpy(name, "list-");
 	if(yieldflag){
 		if((opt_yield & INSERT_YIELD) == 1){
@@ -407,7 +321,6 @@ int main(int argc, char **argv)
 	{
 		free(th_args[i]);
 	}
-	// free(elementslist);
 	free(list);
 	exit(0);
 }
