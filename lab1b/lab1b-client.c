@@ -4,17 +4,17 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <termios.h> // for termios functions
+#include <termios.h>
 #include <unistd.h> 
 #include <errno.h>
 #include <string.h>
-#include <getopt.h> // header file for getopt_long()
-#include <signal.h> // header file for signal()
+#include <getopt.h> 
+#include <signal.h> 
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <poll.h>
 #include <sys/wait.h>
-#include <fcntl.h> // header for create the file
+#include <fcntl.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
@@ -23,7 +23,7 @@
 #include <assert.h>
 #include <zlib.h>
 
-//#define SHELL 's'
+
 #define PORT 'p'
 #define LOG 'l'
 #define COMPRESS 'c'
@@ -65,7 +65,7 @@ int main(int argc, char **argv)
         {
         	case PORT:
         			portflag = 1;
-        			portnum = atoi((char*) optarg); // port number
+        			portnum = atoi((char*) optarg); 
         			break;
         	case LOG:
         			logflag = 1;
@@ -90,7 +90,7 @@ int main(int argc, char **argv)
 	if(logflag)
 	{
 		logfd=open(logfile, O_CREAT|O_WRONLY|O_TRUNC, 0666);
-                //logfd = creat(logfile, S_IRWXU | S_IRGRP | S_IROTH);
+               
 		if(logfd < 0)
 		{
 			fprintf(stderr, "Error! Unable to create and open the log file: %s\n", strerror(errno));
@@ -98,8 +98,6 @@ int main(int argc, char **argv)
 		}
 	}
 
-	// CREATE A NEW SOCKET
-	// socket (address domain, type of socket, protocol)
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if(sockfd < 0)
 	{
@@ -114,31 +112,22 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	// sets all values in a buffer to zero
-	// bzero((char *) &serv_addr, sizeof(serv_addr));
-	// bcopy((char*) server->h_addr, (char*) &serv_addr.sin_addr.s_addr, server->h_length);
-	// from open source online, (also TA mentioned in class) memset() is preferred over bzero()
-	// and memcpy() is preferred over the bcopy()
 	memset((char*) &serv_addr, 0, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
-	// memmove((char*) &serv_addr.sin_addr.s_addr, (char*) server->h_addr, server->h_length);
+	
 	memcpy((char*) &serv_addr.sin_addr.s_addr, (char*) server->h_addr, server->h_length);
 	serv_addr.sin_port = htons(portnum);
 
-	// client establishs a connection to the server
 	if(connect(sockfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0)
 	{
 		fprintf(stderr, "Error! Fail to establish a connection to server!\n");
 		exit(1);
 	}
 
-	//  gets the parameters associated with the object referred by 
-	//  fd and stores them in the termios structure referenced by termios_p. 
 	tcgetattr(0, &initial);
-	termode.c_iflag = ISTRIP; /* only lower 7 bits	*/
-	termode.c_oflag = 0; /* no processing	*/
-	termode.c_lflag = 0; /* no processing	*/
-	/* sets the parameters associated with the terminal */
+	termode.c_iflag = ISTRIP; 
+	termode.c_oflag = 0;
+	termode.c_lflag = 0; 
 	tcsetattr(0, TCSANOW, &termode);
 
 
@@ -148,18 +137,18 @@ int main(int argc, char **argv)
 	int check3;
 	char ch;
 
-	//signal(SIGPIPE, handler);
+	
 	for(;;)
 	{
-		fds[0].fd = 0; // from stdin
-		fds[1].fd = sockfd;  // from socket
+		fds[0].fd = 0; 
+		fds[1].fd = sockfd;  
 		fds[0].events = POLLIN | POLLHUP | POLLERR;
 		fds[1].events = POLLIN | POLLHUP | POLLERR;
 		fds[0].revents = 0;
 		fds[1].revents = 0;
 
 		p = poll(fds, 2, 0);
-		if (p==0) // timeout
+		if (p==0) 
 		{
 			continue;
 		}
@@ -171,8 +160,7 @@ int main(int argc, char **argv)
 		}
 		
 		unsigned char buffer[BUFFER_SIZE];
-		unsigned char outputbuffer[OUTBUFFER_SIZE]; // output data buffer
-		// read from stdin
+		unsigned char outputbuffer[OUTBUFFER_SIZE]; 
 		if(fds[0].revents & POLLIN)
 		{
 			check3 = read(0, buffer, BUFFER_SIZE);
@@ -189,8 +177,6 @@ int main(int argc, char **argv)
 				strm1.zalloc = Z_NULL;
 				strm1.zfree = Z_NULL;
 				strm1.opaque = Z_NULL;
-
-				// initialize the zlib state for compression
 				checkdef1 = deflateInit(&strm1, Z_DEFAULT_COMPRESSION);
 				if(checkdef1 != Z_OK)
 				{
@@ -217,7 +203,7 @@ int main(int argc, char **argv)
 
 				ret = OUTBUFFER_SIZE-strm1.avail_out;
 
-				if(logflag==1) // this is for compress option
+				if(logflag==1) 
 				{
    	 				char s[256];
 	    				sprintf(s, "SENT %d bytes: %s\n", ret, outputbuffer);
@@ -240,7 +226,7 @@ int main(int argc, char **argv)
 			{
 				ch = buffer[i];
 
-				if(buffer[i] == '\r' || buffer[i] == '\n') // map received <cr> or <lf> into <cr><lf> 
+				if(buffer[i] == '\r' || buffer[i] == '\n') 
 				{
 					
 					write(1, "\r\n", 2);
@@ -259,8 +245,6 @@ int main(int argc, char **argv)
 				}
 			}
 		}
-
-		// read input from socket
 		if(fds[1].revents & POLLIN)
 		{
 			check3 = read(sockfd, buffer, BUFFER_SIZE);
@@ -289,7 +273,7 @@ int main(int argc, char **argv)
 				strm2.zfree = Z_NULL;
 				strm2.opaque = Z_NULL;
 
-				// initialize the zlib state for decompression
+				
 				checkinf1 = inflateInit(&strm2);
 				if(checkinf1 != Z_OK)
 				{
@@ -312,7 +296,7 @@ int main(int argc, char **argv)
 				for(int i=0; i< ret; i++)
 				{
 					ch = outputbuffer[i];
-					if(outputbuffer[i] == '\n' || outputbuffer[i] == '\r') // received an <lf> from shell, print it to the screen as <cr><lf>
+					if(outputbuffer[i] == '\n' || outputbuffer[i] == '\r') 
 					{
 
 						write(1, "\r\n", 2);
@@ -324,12 +308,12 @@ int main(int argc, char **argv)
 				}
 
 			}
-			else // didn't compress the data
+			else 
 			{
 				for(int i=0; i<check3; i++)
 				{
 					ch = buffer[i];
-					if(buffer[i] == '\n' || buffer[i] == '\r') // received an <lf> from shell, print it to the screen as <cr><lf>
+					if(buffer[i] == '\n' || buffer[i] == '\r')
 					{
 						write(1, "\r\n", 2);
 					}
@@ -354,7 +338,6 @@ int main(int argc, char **argv)
 						
 		}
 	}
-	// restore (reset) normal terminal modes and exit
 	tcsetattr(0, TCSANOW, &initial);
 	exit(0);
 }
